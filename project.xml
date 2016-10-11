@@ -24,21 +24,26 @@
     <target name="travis" />
 	<target name="mingw32" />
 	
-	<class name="jp_cfgmap" />
-	<class name="jp_level" />
+	<!--- namespaces are cool !--->
+	<class name="jp_io_cfgmap" />
+	<class name="jp_io_level" />
+	<class name="jp_io_chunk" />
 	
+	<class name="jp_entity_base" />
+	<class name="jp_entity_player" parent="entity" />
+	<class name="jp_entity_enemy" parent="entity" />
+	<!---<class name="jp_entity_" parent="entity" /> -->
 	
-	<class name="jp_chunk" />
     
-	<class name="jp_stopwatch" />
 	
+	<class name="jp_math_stopwatch" />
 	
-	<class name="jp_matrix" />
-	<class name="jp_vectorxy" />
-	<class name="jp_vectorxyz" />
-	<class name="jp_plane" />
-	<class name="jp_quat" />
-	<class name="jp_view" />
+	<class name="jp_math_mat" />
+	<class name="jp_math_vecxy" />
+	<class name="jp_math_vecxyz" />
+	<class name="jp_math_plane" />
+	<class name="jp_math_quat" />
+	<class name="jp_math_view" />
 	
     
 
