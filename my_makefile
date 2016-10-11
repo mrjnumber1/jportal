@@ -9,27 +9,46 @@ INCDIR = $(BASEDIR)/include
 INCLUDES = 
 C_FILES = $(wildcard $(SRCDIR)/*.c)
 OBJ_FILES = $(addprefix obj/,$(notdir $(C_FILES:.c=.o))) 
+CORE_PCH_FILE = $(INCDIR)/jp_main.h
+CORE_PCH = $(CORE_PCH_FILE).gch
 CC = gcc
 SDL_CFLAGS = -I/opt/windows_32/include/SDL2 -Dmain=SDL_main
 SDL_LDFLAGS = -L/opt/windows_32/lib -lmingw32 -lSDL2main -lSDL2 -mwindows 
 CFLAGS = $(INCLUDES) -g -pedantic -Wall -Werror -Wfatal-errors --std=gnu11 $(SDL_CFLAGS)
 LDFLAGS = $(SDL_LDFLAGS)
 MAIN = rungame.exe
+ALL_ITEMS = pch game
 
-all: $(MAIN)
-	@echo Compiling rungame... 
+
+all: $(ALL_ITEMS) 
+
+
+game: $(MAIN)
+	@echo Compiling rungame...
+
+
+pch: $(CORE_PCH)
+	@echo precompiling header...
+
 
 $(MAIN): $(OBJ_FILES)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) 
 
+
+$(CORE_PCH):  
+	$(CC) $(CFLAGS) -x c-header $(CORE_PCH_FILE)
+
+
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $< 
+
 
 clean:
 	$(RM) $(OBJ_FILES) 
 	$(RM) ./*~
 	$(RM) ./include/*~
 	$(RM) ./src/*~
+	$(RM) $(CORE_PCH) 
 	$(RM) $(MAIN)
 
 

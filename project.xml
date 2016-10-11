@@ -1,0 +1,46 @@
+<project
+    name = "jportalsandbox"
+    description = "jportal renderer"
+    script = "zproject.gsl"
+    prefix = "jp"
+    header = "jp_head.h"
+	license = "MPLv2"
+	url = "https://github.com/mrjnumber1/jportal"
+	repository = "https://github.com/mrjnumber1/jportal"
+    email = "multicoloredwiz+removeme@gmail.com"
+    >
+
+    <version major = "0" minor = "0" patch="1"/>
+    <include filename = "license.xml" />
+
+   <!--- 
+   <use project = "mingw32" />
+    <use project = "SDL2" />
+    <use project = "SDL2main" />
+    <use project = "SDL2_mixer" />
+    <use project = "SDL2_image" />
+    <use project = "SDL2_ttf" /> 
+	--->
+    <target name="travis" />
+	<target name="mingw32" />
+	
+	<class name="jp_cfgmap" />
+	<class name="jp_level" />
+	
+	
+	<class name="jp_chunk" />
+    
+	<class name="jp_stopwatch" />
+	
+	
+	<class name="jp_matrix" />
+	<class name="jp_vectorxy" />
+	<class name="jp_vectorxyz" />
+	<class name="jp_plane" />
+	<class name="jp_quat" />
+	<class name="jp_view" />
+	
+    
+
+    <main name="main">j portal sandbox thing!</main>
+</project>

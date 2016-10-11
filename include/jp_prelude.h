@@ -52,9 +52,9 @@
 #include <SDL2/SDL.h>
 
 
-_Static_assert(UCHAR_MAX == 0xFF, "byte definition needs changed!!");
-_Static_assert(USHRT_MAX == 0xFFFFU, "word definition needs changed!!");
-_Static_assert(UINT_MAX == 0xFFFFFFFFU, "dword definition needs changed!!");
+static_assert(UCHAR_MAX == 0xFF, "byte definition needs changed!!");
+static_assert(USHRT_MAX == 0xFFFFU, "word definition needs changed!!");
+static_assert(UINT_MAX == 0xFFFFFFFFU, "dword definition needs changed!!");
 
 typedef unsigned char   byte;
 typedef unsigned short  dbyte;
@@ -143,14 +143,57 @@ typedef unsigned int    qbyte;
 #endif
 
 
+#define NLP_MARK __FILE__, __LINE__, __func__
+
+inline bool
+nullpo_chk(const char* file, unsigned line, const char *func, const void* target)
+{
+    if (target != NULL)
+        return false;
+
+    if (file == NULL)
+        file = "?";
+
+    func = 
+        func == NULL ? "?":
+        func[0] == '\0' ? "?":
+            func;
+
+    fprintf(stderr, "ERROR! nullpo passed! info: \n");
+    fprintf(stderr, "%s:%d in func `%s`\n", file, line, func);
+    fflush(stderr);
+
+    return true;
+}
+
+
+#define nullpo_ret(t) \
+    if (nullpo_chk(NLP_MARK, (void *)(t))) { return(0);}
+
+#define nullpo_retv(t) \
+    if (nullpo_chk(NLP_MARK, (void *)(t))) { return; }
+
+#define nullpo_retr(t, ret) \
+    if (nullpo_chk(NLP_MARK, (void *)(t))) { return (ret); }
+
+
+
 static inline void*
-safe_malloc(size_t size, const char *file, unsigned line)
+safe_malloc(size_t size, const char *file, unsigned line, const char* func)
 {
     void *mem = calloc(1, size);
 
     if (mem == NULL)
     {
-        fprintf(stderr, "FATAL ERROR at %s:%u\n", file, line);
+        if (file == NULL)
+            file = "?";
+
+        func = 
+            func == NULL ? "?":
+            func[0] == '\0' ? "?":
+                func;
+
+        fprintf(stderr, "FATAL ERROR at %s:%u in `%s`! \n", file, line, func);
         fprintf(stderr, "OUT OF MEMORY!! malloc returned null!");
         fflush(stderr);
         abort();
@@ -163,7 +206,7 @@ safe_malloc(size_t size, const char *file, unsigned line)
 #if defined(TRACE_MEMLEAKS)
 #   define jmalloc(size) calloc(1,(size))
 #else
-#   define jmalloc(size) safe_malloc((size), __FILE__, __LINE__)
+#   define jmalloc(size) safe_malloc((size), NLP_MARK) 
 #endif
 
 #if (defined(__GNUC__) && (__GNUC__ >= 2))
@@ -214,38 +257,8 @@ typedef uintptr_t uintptr;
 #define QUOTE(x) #x
 #define EXPAND_AND_QUOTE(x) QUOTE(x)
 
-#define NLP_MARK __FILE__, __LINE__, __func__
-
-inline bool
-nullpo_chk(const char* file, unsigned line, const char *func, const void* target)
-{
-    if (target != NULL)
-        return false;
-
-    if (file == NULL)
-        file = "?";
-
-    func = 
-        func == NULL ? "unknownfunc":
-        func[0] == '\0' ? "unknown func":
-            func;
-
-    fprintf(stderr, "ERROR! nullpo passed! info: \n");
-    fprintf(stderr, "%s:%d in func `%s`\n", file, line, func);
-    fflush(stderr);
-
-    return true;
-}
-
-#define nullpo_ret(t) \
-    if (nullpo_chk(NLP_MARK, (void *)(t))) { return(0);}
-
-#define nullpo_retv(t) \
-    if (nullpo_chk(NLP_MARK, (void *)(t))) { return; }
-
-#define nullpo_retr(t, ret) \
-    if (nullpo_chk(NLP_MARK, (void *)(t))) { return (ret); }
-
-
+#define jp_assert(cond) \
+ (void)( (!!(cond) || printf("test assertion failed: '%s', at %s:%u in %s", \
+        QUOTE(cond), NLP_MARK)));
 
 #endif
