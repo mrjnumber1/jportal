@@ -61,7 +61,7 @@ typedef unsigned short  dbyte;
 typedef unsigned int    qbyte;  
 
 #define streq(s1, s2) (!strcmp((s1), (s2)))
-#define strnew(s1, s2) (strcmp((s1), (s2))) 
+#define strneq(s1, s2) (strcmp((s1), (s2))) 
 
 #if (defined(__WINDOWS__))
 #   define randof(num) (int) ((float) (num) * rand() / (RAND_MAX + 1.0))

@@ -4,27 +4,18 @@
     script = "zproject.gsl"
     prefix = "jp"
     header = "jp_head.h"
-	license = "MPLv2"
-	url = "https://github.com/mrjnumber1/jportal"
-	repository = "https://github.com/mrjnumber1/jportal"
+    license = "MPLv2"
+    url = "https://github.com/mrjnumber1/jportal"
+    repository = "https://github.com/mrjnumber1/jportal"
     email = "multicoloredwiz+removeme@gmail.com"
     >
 
     <version major = "0" minor = "0" patch="1"/>
     <include filename = "license.xml" />
 
-   <!--- 
-   <use project = "mingw32" />
-    <use project = "SDL2" />
-    <use project = "SDL2main" />
-    <use project = "SDL2_mixer" />
-    <use project = "SDL2_image" />
-    <use project = "SDL2_ttf" /> 
-	--->
     <target name="travis" />
 	<target name="mingw32" />
 	
-	<!--- namespaces are cool !--->
 	<class name="jp_io_cfgmap" />
 	<class name="jp_io_level" />
 	<class name="jp_io_chunk" />
@@ -32,7 +23,6 @@
 	<class name="jp_entity_base" />
 	<class name="jp_entity_player" parent="entity" />
 	<class name="jp_entity_enemy" parent="entity" />
-	<!---<class name="jp_entity_" parent="entity" /> -->
 	
     
 	
