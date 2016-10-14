@@ -23,7 +23,7 @@
         <class name="app" />
 		<class name="log" />
         
-        <!--- fld as in field as in the map!! --->
+        <!--- field being the map! --->
         <class name="field" />
         <class name="sector" />
         
@@ -60,7 +60,6 @@
             <class name="pickup" parent="entity" />
             <class name="enemy" parent="entity" />
         </namespace>
-        
         
 		<namespace name="timing">
 			<class name="callback" />
