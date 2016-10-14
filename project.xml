@@ -3,39 +3,87 @@
     description = "jportal renderer"
     script = "zproject.gsl"
     prefix = "jp"
-    header = "jp_head.h"
+    header = "main"
     license = "MPLv2"
     url = "https://github.com/mrjnumber1/jportal"
     repository = "https://github.com/mrjnumber1/jportal"
     email = "multicoloredwiz+removeme@gmail.com"
-    >
-
+>
     <version major = "0" minor = "0" patch="1"/>
     <include filename = "license.xml" />
 
     <target name="travis" />
-	<target name="mingw32" />
-	
-	<class name="jp_io_cfgmap" />
-	<class name="jp_io_level" />
-	<class name="jp_io_chunk" />
-	
-	<class name="jp_entity_base" />
-	<class name="jp_entity_player" parent="entity" />
-	<class name="jp_entity_enemy" parent="entity" />
-	
-    
-	
-	<class name="jp_math_stopwatch" />
-	
-	<class name="jp_math_mat" />
-	<class name="jp_math_vecxy" />
-	<class name="jp_math_vecxyz" />
-	<class name="jp_math_plane" />
-	<class name="jp_math_quat" />
-	<class name="jp_math_view" />
-	
+    <target name="mingw32" />
     
 
     <main name="main">j portal sandbox thing!</main>
+	
+    <namespace prefix="true">
+	
+        <class name="app" />
+		<class name="log" />
+        
+        <!--- fld as in field as in the map!! --->
+        <class name="field" />
+        <class name="sector" />
+        
+        <namespace name="crypt">
+            <class name="sha1" />
+        </namespace>
+        
+        <namespace name="io">
+		
+            <class name="renderqueue" />
+            <class name="chunk" />
+			
+			<namespace name="input">
+                <class name="input" />
+				<class name="joy" parent="input" />
+				<class name="mouse" parent="input" />
+				<class name="kb" parent="input" />
+			</namespace>
+			
+			<namespace name="data">
+				<class name="item" />
+				<class name="npc" />
+				<class name="mob" />
+				<class name="texture" />
+				<class name="config" />
+				<class name="field" />
+			</namespace>
+        </namespace>
+        
+        <!--- map entities --->
+        <namespace name="entity">
+            <class name="entity" />
+            <class name="player" parent="entity" />
+            <class name="pickup" parent="entity" />
+            <class name="enemy" parent="entity" />
+        </namespace>
+        
+        
+		<namespace name="timing">
+			<class name="callback" />
+            <class name="stopwatch" />
+		</namespace>
+		
+        <!--- mathematical utilities --->
+        <namespace name="math">
+            <class name="matrix" />
+            <class name="quat" />
+            <class name="vecxy" />
+            <class name="vecxyz" />
+            <class name="plane" />
+        </namespace>
+        
+        <!--- random containers of need .. --->
+        <namespace name="container">
+            <class name="list" />
+            <class name="stack" />
+            <class name="queue" />
+            <class name="map" />
+        </namespace>
+        
+    </namespace>
+    
 </project>
