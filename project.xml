@@ -3,7 +3,7 @@
     description = "jportal renderer"
     script = "zproject.gsl"
     prefix = "jp"
-    header = "main"
+    header = "main.h"
     license = "MPLv2"
     url = "https://github.com/mrjnumber1/jportal"
     repository = "https://github.com/mrjnumber1/jportal"
@@ -62,7 +62,7 @@
         </namespace>
         
 		<namespace name="timing">
-			<class name="callback" />
+			<class name="event" />
             <class name="stopwatch" />
 		</namespace>
 		
