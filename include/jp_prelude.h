@@ -51,6 +51,140 @@
 
 #include <SDL.h>
 
+#if (defined (__MSDOS__))
+#   if (defined (__WINDOWS__))
+#       if (_WIN32_WINNT < 0x0600)
+#           undef _WIN32_WINNT
+#           define _WIN32_WINNT 0x0600
+#       endif
+#       if (!defined (FD_SETSIZE))
+#           define FD_SETSIZE 1024      //  Max. filehandles/sockets
+#       endif
+#       include <direct.h>
+#       include <winsock2.h>
+#       include <windows.h>
+#       include <process.h>
+#       include <ws2tcpip.h>            //  For getnameinfo ()
+#       include <iphlpapi.h>            //  For GetAdaptersAddresses ()
+#   endif
+#   include <malloc.h>
+#   include <dos.h>
+#   include <io.h>
+#   include <fcntl.h>
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <sys/utime.h>
+#   include <share.h>
+#endif
+
+#if (defined (__UNIX__))
+#   include <fcntl.h>
+#   include <netdb.h>
+#   include <unistd.h>
+#   include <pthread.h>
+#   include <dirent.h>
+#   include <pwd.h>
+#   include <grp.h>
+#   include <utime.h>
+#   include <inttypes.h>
+#   include <syslog.h>
+#   include <sys/types.h>
+#   include <sys/param.h>
+#   include <sys/socket.h>
+#   include <sys/time.h>
+#   include <sys/stat.h>
+#   include <sys/ioctl.h>
+#   include <sys/file.h>
+#   include <sys/wait.h>
+#   include <sys/un.h>
+#   include <sys/uio.h>             //  Let CZMQ build with libzmq/3.x
+#   include <netinet/in.h>          //  Must come before arpa/inet.h
+#   if (!defined (__UTYPE_ANDROID)) && (!defined (__UTYPE_IBMAIX)) \
+    && (!defined (__UTYPE_HPUX))
+#       include <ifaddrs.h>
+#   endif
+#   if defined (__UTYPE_SUNSOLARIS) || defined (__UTYPE_SUNOS)
+#       include <sys/sockio.h>
+#   endif
+#   if (!defined (__UTYPE_BEOS))
+#       include <arpa/inet.h>
+#       if (!defined (TCP_NODELAY))
+#           include <netinet/tcp.h>
+#       endif
+#   endif
+#   if (defined (__UTYPE_IBMAIX) || defined(__UTYPE_QNX))
+#       include <sys/select.h>
+#   endif
+#   if (defined (__UTYPE_BEOS))
+#       include <NetKit.h>
+#   endif
+#   if ((defined (_XOPEN_REALTIME) && (_XOPEN_REALTIME >= 1)) \
+     || (defined (_POSIX_VERSION)  && (_POSIX_VERSION  >= 199309L)))
+#       include <sched.h>
+#   endif
+#   if (defined (__UTYPE_OSX) || defined (__UTYPE_IOS))
+#       include <mach/clock.h>
+#       include <mach/mach.h>           //  For monotonic clocks
+#   endif
+#   if (defined (__UTYPE_OSX))
+#       include <crt_externs.h>         //  For _NSGetEnviron()
+#   endif
+#   if (defined (__UTYPE_ANDROID))
+#       include <android/log.h>
+#   endif
+#   if (defined (__UTYPE_LINUX) && defined (HAVE_LIBSYSTEMD))
+#       include <systemd/sd-daemon.h>
+#   endif
+#endif
+
+#if (defined (__VMS__))
+#   if (!defined (vaxc))
+#       include <fcntl.h>               //  Not provided by Vax C
+#   endif
+#   include <netdb.h>
+#   include <unistd.h>
+#   include <pthread.h>
+#   include <unixio.h>
+#   include <unixlib.h>
+#   include <types.h>
+#   include <file.h>
+#   include <socket.h>
+#   include <dirent.h>
+#   include <time.h>
+#   include <pwd.h>
+#   include <stat.h>
+#   include <in.h>
+#   include <inet.h>
+#endif
+
+#if (defined (__OS2__))
+#   include <sys/types.h>               //  Required near top
+#   include <fcntl.h>
+#   include <malloc.h>
+#   include <netdb.h>
+#   include <unistd.h>
+#   include <pthread.h>
+#   include <dirent.h>
+#   include <pwd.h>
+#   include <grp.h>
+#   include <io.h>
+#   include <process.h>
+#   include <sys/param.h>
+#   include <sys/socket.h>
+#   include <sys/select.h>
+#   include <sys/time.h>
+#   include <sys/stat.h>
+#   include <sys/ioctl.h>
+#   include <sys/file.h>
+#   include <sys/wait.h>
+#   include <netinet/in.h>              //  Must come before arpa/inet.h
+#   include <arpa/inet.h>
+#   include <utime.h>
+#   if (!defined (TCP_NODELAY))
+#       include <netinet/tcp.h>
+#   endif
+#endif
+
 #ifndef static_assert
 #   define static_assert(cond, msg) \
         typedef char _stasrt_##msg[(!!cond)*2-1]
@@ -63,6 +197,19 @@ static_assert(UINT_MAX == 0xFFFFFFFFU, "dword definition needs changed!!");
 typedef unsigned char byte;
 typedef unsigned short dbyte;
 typedef unsigned int qbyte;  
+
+typedef unsigned short ushort;
+typedef unsigned char uchar;
+typedef unsigned int uint;
+
+typedef uint8_t uint8;
+typedef uint16_t uint16;
+typedef uint32_t uint32;
+typedef uint64_t uint64;
+typedef int8_t int8;
+typedef int16_t int16;
+typedef int32_t int32;
+typedef int64_t int64;
 
 #if (defined(__WINDOWS__))
 #   define randof(num) (int) ((float) (num) * rand() / (RAND_MAX + 1.0))
@@ -176,7 +323,8 @@ typedef unsigned int qbyte;
 
 #define NLP_MARK __FILE__, __LINE__, __func__
 
-bool nullpo_chk(const char* file, unsigned line, const char *func, const void* target)
+inline bool 
+nullpo_chk(const char* file, unsigned line, const char *func, const void* target)
 {
     if (target != NULL)
         return false;
@@ -194,11 +342,12 @@ bool nullpo_chk(const char* file, unsigned line, const char *func, const void* t
     return true;
 }
 
+
 #define is_compatible_type(x, T) _Generic((x), T:true, default:false)
 #define is_integer_type(x) is_compatible_type(x, int)
 #define is_float_type(x) _Generic((x), \
     float:true, const float: true, double:true, const double: true, default:false)
-#define is_string_type(x) _Generic( ((0,(x))+0), \
+#define is_string_type(x) _Generic( &((x)[0]), \
     char*: true, const char*: true, default:false)
 #define ensure_type(x, T) static_assert(is_compatible_type(x, T), \
     "incorrect type for paramenter " QUOTE(x) "expected " QUOTE(T))
@@ -367,6 +516,9 @@ trace_malloc(size_t size, const char *file, unsigned line, const char* func)
 
 #define ARRAY_SIZE(a) ( sizeof(a)/sizeof((a)[0]) )
 
+#ifdef min
+#    undef min
+#endif
 #define min(x, y) ({ \
         typeof(x) _min1 = (x); \
         typeof(y) _min2 = (y); \
@@ -375,6 +527,9 @@ trace_malloc(size_t size, const char *file, unsigned line, const char* func)
 
 #define min3(x, y, z) min((typeof(x))min(x, y), z)
 
+#ifdef max
+#    undef max
+#endif
 #define max(x, y) ({ \
         typeof(x) _max1 = (x); \
         typeof(y) _max2 = (y); \

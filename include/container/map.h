@@ -1,5 +1,5 @@
 /*  =========================================================================
-    jportalsandbox - jportal renderer
+    jp_container_map - class description
 
     Copyright (c) the Contributors as noted in the AUTHORS file.       
     This file is publically available for educational use by mrj!!!    
@@ -10,12 +10,28 @@
     =========================================================================
 */
 
-#ifndef MAIN_H_INCLUDED
-#define MAIN_H_INCLUDED
+#ifndef JP_CONTAINER_MAP_H_INCLUDED
+#define JP_CONTAINER_MAP_H_INCLUDED
 
-//  Include the project library file
-#include "jp_library.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-//  Add your own public definitions here, if you need them
+//  Create a new jp_container_map
+jp_container_map *
+    jp_container_map_new(void);
+
+//  Destroy the jp_container_map
+void
+    jp_container_map_destroy(jp_container_map **self_p);
+
+//  Self test of this class
+void
+    jp_container_map_test(bool verbose);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

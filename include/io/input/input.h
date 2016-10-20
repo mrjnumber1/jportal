@@ -1,5 +1,5 @@
 /*  =========================================================================
-    jportalsandbox - jportal renderer
+    jp_io_input_input - class description
 
     Copyright (c) the Contributors as noted in the AUTHORS file.       
     This file is publically available for educational use by mrj!!!    
@@ -10,12 +10,28 @@
     =========================================================================
 */
 
-#ifndef MAIN_H_INCLUDED
-#define MAIN_H_INCLUDED
+#ifndef JP_IO_INPUT_INPUT_H_INCLUDED
+#define JP_IO_INPUT_INPUT_H_INCLUDED
 
-//  Include the project library file
-#include "jp_library.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-//  Add your own public definitions here, if you need them
+//  Create a new jp_io_input_input
+jp_io_input_input *
+    jp_io_input_input_new(void);
+
+//  Destroy the jp_io_input_input
+void
+    jp_io_input_input_destroy(jp_io_input_input **self_p);
+
+//  Self test of this class
+void
+    jp_io_input_input_test(bool verbose);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

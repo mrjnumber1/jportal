@@ -1,5 +1,5 @@
 /*  =========================================================================
-    jportalsandbox - jportal renderer
+    jp_io_data_mob - class description
 
     Copyright (c) the Contributors as noted in the AUTHORS file.       
     This file is publically available for educational use by mrj!!!    
@@ -10,12 +10,28 @@
     =========================================================================
 */
 
-#ifndef MAIN_H_INCLUDED
-#define MAIN_H_INCLUDED
+#ifndef JP_IO_DATA_MOB_H_INCLUDED
+#define JP_IO_DATA_MOB_H_INCLUDED
 
-//  Include the project library file
-#include "jp_library.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-//  Add your own public definitions here, if you need them
+//  Create a new jp_io_data_mob
+jp_io_data_mob *
+    jp_io_data_mob_new(void);
+
+//  Destroy the jp_io_data_mob
+void
+    jp_io_data_mob_destroy(jp_io_data_mob **self_p);
+
+//  Self test of this class
+void
+    jp_io_data_mob_test(bool verbose);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
