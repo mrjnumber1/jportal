@@ -13,8 +13,7 @@
     <include filename = "license.xml" />
 
     <target name="travis" />
-    <target name="mingw32" />
-    
+    <!--<target name="vs2013" /> --> 
 
     <main name="main">j portal sandbox thing!</main>
 	
@@ -23,7 +22,7 @@
         <class name="app" />
 		<class name="log" />
         
-        <!--- field being the map! --->
+        <!-- field being the map! -->
         <class name="field" />
         <class name="sector" />
         
@@ -53,7 +52,7 @@
 			</namespace>
         </namespace>
         
-        <!--- map entities --->
+        <!-- map entities -->
         <namespace name="entity">
             <class name="entity" />
             <class name="player" parent="entity" />
@@ -66,7 +65,7 @@
             <class name="stopwatch" />
 		</namespace>
 		
-        <!--- mathematical utilities --->
+        <!-- mathematical utilities -->
         <namespace name="math">
             <class name="matrix" />
             <class name="quat" />
@@ -75,7 +74,7 @@
             <class name="plane" />
         </namespace>
         
-        <!--- random containers of need .. --->
+        <!-- random containers of need .. -->
         <namespace name="container">
             <class name="list" />
             <class name="stack" />

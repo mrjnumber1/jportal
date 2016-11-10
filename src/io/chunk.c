@@ -20,7 +20,7 @@
 #include "jp_classes.h"
 
 #define JP_CHUNK_TAG 0xc0ffee50
-#define JP_CHUNK_DEADTAG 0xDeadBeef;
+#define JP_CHUNK_DEADTAG 0xDeadB33f
 
 //  Structure of our class
 
@@ -265,14 +265,15 @@ jp_io_chunk*
 jp_io_chunk_slurp(const char *filename, size_t maxsize)
 {
     struct stat stat_buf;
-    size_t filesize = -1;
+    size_t filesize = 0;
 
     assert(filename);
 
-    if (stat((char *)filename, &stat_buf) == 0)
-        filesize = stat_buf.st_size;
+    if (stat(filename, &stat_buf) == 0)
+        if (stat_buf.st_size > 0)
+            filesize = (size_t)stat_buf.st_size;
 
-    if (filesize == -1)
+    if (filesize == 0)
         return NULL;
 
     if (filesize > maxsize && maxsize != 0)

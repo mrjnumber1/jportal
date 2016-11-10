@@ -12,6 +12,7 @@
 #   define __WINDOWS__
 #   undef __MSDOS__
 #   define __MSDOS__
+#    define WIN32_LEAN_AND_MEAN
 #endif
 
 #if (defined(WINDOWS) || defined(_WINDOWS) || defined(__WINDOWS__))
@@ -19,10 +20,12 @@
 #   define __WINDOWS__
 #   undef __MSDOS__
 #   define __MSDOS__
-#   if _MSC_VER >= 1500
-#       undef _CRT_SECURE_NO_DEPRECATE
-#       define _CRT_SECURE_NO_DEPRECATE
-#       pragma warning(disable: 4996)
+#   ifdef _MSC_VER
+#       if _MSC_VER >= 1500
+#           undef _CRT_SECURE_NO_DEPRECATE
+#           define _CRT_SECURE_NO_DEPRECATE
+#           pragma warning(disable: 4996)
+#       endif
 #   endif
 #endif
 
@@ -40,6 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
@@ -51,9 +55,14 @@
 
 #include <SDL.h>
 
+#if defined(__cplusplus) && defined(NULL)
+#    undef NULL
+#    define NULL nullptr
+#endif
+
 #if (defined (__MSDOS__))
 #   if (defined (__WINDOWS__))
-#       if (_WIN32_WINNT < 0x0600)
+#       if (defined(_WIN32_WINNT) && _WIN32_WINNT < 0x0600)
 #           undef _WIN32_WINNT
 #           define _WIN32_WINNT 0x0600
 #       endif
@@ -66,6 +75,7 @@
 #       include <process.h>
 #       include <ws2tcpip.h>            //  For getnameinfo ()
 #       include <iphlpapi.h>            //  For GetAdaptersAddresses ()
+#       include <typeinfo> // for typeid
 #   endif
 #   include <malloc.h>
 #   include <dos.h>
@@ -138,23 +148,23 @@
 #endif
 
 #if (defined (__VMS__))
-#   if (!defined (vaxc))
-#       include <fcntl.h>               //  Not provided by Vax C
-#   endif
-#   include <netdb.h>
-#   include <unistd.h>
-#   include <pthread.h>
-#   include <unixio.h>
-#   include <unixlib.h>
-#   include <types.h>
-#   include <file.h>
-#   include <socket.h>
-#   include <dirent.h>
-#   include <time.h>
-#   include <pwd.h>
-#   include <stat.h>
-#   include <in.h>
-#   include <inet.h>
+#    if (!defined (vaxc))
+#        include <fcntl.h>               //  Not provided by Vax C
+#    endif
+#    include <netdb.h>
+#    include <unistd.h>
+#    include <pthread.h>
+#    include <unixio.h>
+#    include <unixlib.h>
+#    include <types.h>
+#    include <file.h>
+#    include <socket.h>
+#    include <dirent.h>
+#    include <time.h>
+#    include <pwd.h>
+#    include <stat.h>
+#    include <in.h>
+#    include <inet.h>
 #endif
 
 #if (defined (__OS2__))
@@ -185,22 +195,21 @@
 #   endif
 #endif
 
-#ifndef static_assert
-#   define static_assert(cond, msg) \
-        typedef char _stasrt_##msg[(!!cond)*2-1]
+#if !defined(static_assert)
+#    if defined(_Static_assert)
+#        define static_assert _Static_assert
+#    elif defined(_STATIC_ASSERT) && defined(__WINDOWS__)
+#        define static_assert(cond, msg) _STATIC_ASSERT(cond)
+#    else
+#        define static_assert(cond, msg) \
+        typedef char _stasrt_## msg ##[(!!cond)*2-1]
+#    endif
 #endif
 
-static_assert(UCHAR_MAX == 0xFF, "byte definition needs changed!!");
-static_assert(USHRT_MAX == 0xFFFFU, "word definition needs changed!!");
-static_assert(UINT_MAX == 0xFFFFFFFFU, "dword definition needs changed!!");
-
-typedef unsigned char byte;
-typedef unsigned short dbyte;
-typedef unsigned int qbyte;  
-
-typedef unsigned short ushort;
-typedef unsigned char uchar;
-typedef unsigned int uint;
+static_assert(UCHAR_MAX  == 0xFF, "byte definition needs changed!!");
+static_assert(USHRT_MAX  == 0xFFFFU, "word definition needs changed!!");
+static_assert(UINT_MAX   == 0xFFFFFFFFU, "dword definition needs changed!!");
+static_assert(ULLONG_MAX == 0xFFFFFFFFFFFFFFFFULL, "qword definition needs changed!!");
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -211,10 +220,24 @@ typedef int16_t int16;
 typedef int32_t int32;
 typedef int64_t int64;
 
+typedef uint8 byte;
+typedef uint16 dbyte;
+typedef uint32 qbyte;
+typedef uint64 obyte;
+
+typedef dbyte word;
+typedef qbyte dword;
+typedef obyte qword;
+
+typedef uint8 uchar;
+typedef uint16 ushort;
+typedef uint32 uint;
+
+
 #if (defined(__WINDOWS__))
-#   define randof(num) (int) ((float) (num) * rand() / (RAND_MAX + 1.0))
+#    define randof(num) (int) ((float) (num) * rand() / (RAND_MAX + 1.0))
 #else
-#   define randof(num) (int) ((float) (num) * random() / (RAND_MAX + 1.0))
+#    define randof(num) (int) ((float) (num) * random() / (RAND_MAX + 1.0))
 #endif
 
 #if (defined(_MSC_VER))
@@ -224,7 +247,7 @@ typedef int64_t int64;
         typedef char bool;
 #   endif
 #elif (!defined(true))
-#   include <stdbool.h>
+#    include <stdbool.h>
 #endif
 
 
@@ -249,17 +272,6 @@ typedef int64_t int64;
             typedef intptr_t ssize_t;
 #           define _SSIZE_T_DEFINED
 #       endif
-#   endif
-#   if ((!defined(__MINGW32__) \
-    || (defined(__MINGW32__) && defined(__IS_64BIT))))
-        typedef __int8 int8;
-        typedef __int16 int16;
-        typedef __int32 int32;
-        typedef __int64 int64;
-        typedef unsigned __int8 uint8;
-        typedef unsigned __int16 uint16;
-        typedef unsigned __int32 uint32;
-        typedef unsigned __int64 uint64;
 #   endif
 #   if (!defined(PRId8))
 #       define PRId8    "d"
@@ -286,7 +298,7 @@ typedef int64_t int64;
 #       define PRIu64   "I64u"
 #   endif
 #   if (!defined(va_copy))
-#       define va_copy(dest, src) (dest) = (src)
+#       define va_copy(dest, src) memcpy(dest, src, sizeof (src))
 #   endif
 #endif
 
@@ -336,21 +348,33 @@ nullpo_chk(const char* file, unsigned line, const char *func, const void* target
         func == NULL ? "?":
         func[0] == '\0' ? "?":
             func;
-    fprintf(stderr, "nullpo: %s:%d in `%s`\n", file, line, func);
+    fprintf(stderr, "nullpo: %s:%u in `%s`\n", file, line, func);
     fflush(stderr);
 
     return true;
 }
 
-
-#define is_compatible_type(x, T) _Generic((x), T:true, default:false)
-#define is_integer_type(x) is_compatible_type(x, int)
-#define is_float_type(x) _Generic((x), \
+#if defined(_Generic)
+#    define is_compatible_type(x, T) _Generic((x), T:true, default:false)
+#    define is_integer_type(x) is_compatible_type(x, int)
+#    define is_float_type(x) _Generic((x), \
     float:true, const float: true, double:true, const double: true, default:false)
-#define is_string_type(x) _Generic( &((x)[0]), \
+#     define is_string_type(x) _Generic( &((x)[0]), \
     char*: true, const char*: true, default:false)
-#define ensure_type(x, T) static_assert(is_compatible_type(x, T), \
-    "incorrect type for paramenter " QUOTE(x) "expected " QUOTE(T))
+#    define ensure_type(x, T) static_assert(is_compatible_type(x, T), \
+    "incorrect type for paramenter " QUOTE(x) ", expected " QUOTE(T))
+#else
+#    if !defined(__cplusplus)
+#        error "You must compile with c11 compatible compiler.. or as C++ with typeid
+#    else
+// msvc13 why dont you support c11 or c++11 at all... 
+#        define is_compatible_type(x, T) (true)
+#        define is_integer_type(x) (true)
+#        define is_float_type(x) (true)
+#        define is_string_type(x) (true)
+#        define ensure_type(x, T) (true)
+#    endif
+#endif 
 
 #ifdef JP_SELFTESTING 
 #   define jassert(cond) \
@@ -486,62 +510,64 @@ trace_malloc(size_t size, const char *file, unsigned line, const char* func)
 
 #define TRACE_MEMLEAKS
 #if defined(TRACE_MEMLEAKS)
-#   define jmalloc(size) calloc(1,(size))
+#    define jmalloc(size) calloc(1,(size))
 #else
-#   define jmalloc(size) trace_malloc((size), NLP_MARK) 
+#    define jmalloc(size) trace_malloc((size), NLP_MARK) 
 #endif
 
 #if (defined(__GNUC__) && (__GNUC__ >= 2))
-#   define CHECK_PRINTF(a) __attribute((format(printf, a, a+1)))
+#    define CHECK_PRINTF(a) __attribute((format(printf, a, a+1)))
 #else
-#   define CHECK_PRINTF(a)
+#    define CHECK_PRINTF(a)
 #endif
 
 
-#define ISALNUM(c) (isalnum((unsigned char)(c)))
-#define ISALPHA(c) (isalpha((unsigned char)(c)))
-#define ISCNTRL(c) (iscntrl((unsigned char)(c)))
-#define ISDIGIT(c) (isdigit((unsigned char)(c)))
-#define ISGRAPH(c) (isgraph((unsigned char)(c)))
-#define ISLOWER(c) (islower((unsigned char)(c)))
-#define ISPRINT(c) (isprint((unsigned char)(c)))
-#define ISPUNCT(c) (ispunct((unsigned char)(c)))
-#define ISSPACE(c) (isspace((unsigned char)(c)))
-#define ISUPPER(c) (isupper((unsigned char)(c)))
-#define ISXDIGIT(c) (isxdigit((unsigned char)(c)))
+#define ISALNUM(c) (isalnum((uchar)(c)))
+#define ISALPHA(c) (isalpha((uchar)(c)))
+#define ISCNTRL(c) (iscntrl((uchar)(c)))
+#define ISDIGIT(c) (isdigit((uchar)(c)))
+#define ISGRAPH(c) (isgraph((uchar)(c)))
+#define ISLOWER(c) (islower((uchar)(c)))
+#define ISPRINT(c) (isprint((uchar)(c)))
+#define ISPUNCT(c) (ispunct((uchar)(c)))
+#define ISSPACE(c) (isspace((uchar)(c)))
+#define ISUPPER(c) (isupper((uchar)(c)))
+#define ISXDIGIT(c) (isxdigit((uchar)(c)))
 
-#define TOASCII(c) (toascii((unsigned char)(c)))
-#define TOLOWER(c) (tolower((unsigned char)(c)))
-#define TOUPPER(c) (toupper((unsigned char)(c)))
+#define TOASCII(c) (toascii((uchar)(c)))
+#define TOLOWER(c) (tolower((uchar)(c)))
+#define TOUPPER(c) (toupper((uchar)(c)))
 
-#define ARRAY_SIZE(a) ( sizeof(a)/sizeof((a)[0]) )
+#define ARRAY_SIZE(a) ((sizeof(a)/sizeof(0[a])) / ((size_t)(!(sizeof(a) % sizeof(0[a])))))
 
-#ifdef min
-#    undef min
-#endif
-#define min(x, y) ({ \
+#ifdef typeof
+#    ifdef min
+#        undef min
+#    endif
+#    define min(x, y) ({ \
         typeof(x) _min1 = (x); \
         typeof(y) _min2 = (y); \
         (void) (&_min1 == &_min2); \
         _min1 < _min2 ? _min1 : min2; })
 
-#define min3(x, y, z) min((typeof(x))min(x, y), z)
 
-#ifdef max
-#    undef max
-#endif
-#define max(x, y) ({ \
+#    ifdef max
+#        undef max
+#    endif
+#    define max(x, y) ({ \
         typeof(x) _max1 = (x); \
         typeof(y) _max2 = (y); \
         (void) (&_max1 == &_max2); \
         _max1 > _max2 ? _max1 : max2; })
 
-#define max3(x, y, z) max((typeof(x))max(x, y),z)
+#    define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
+#    define min3(x, y, z) min((typeof(x))min(x, y), z)
+#    define max3(x, y, z) max((typeof(x))max(x, y), z)
+#endif
 
-#define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
-
-#define swap(a, b) \
-        do { typeof(a) _tmp =(a); (a) = (b); (b) = _tmp; } while(0)
+#define clamp(val, lo, hi), min(max(val,lo),hi)
+#define min3(x, y, z) min(min(x, y), z)
+#define max3(x, y, z) max(max(x, y), z)
 
 #define abs(a) ((a) < 0 ? -(a) : (a))
 // sign(n) will return -1, 0, or 1
